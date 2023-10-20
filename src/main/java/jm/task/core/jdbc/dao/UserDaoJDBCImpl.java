@@ -2,15 +2,11 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class UserDaoJDBCImpl implements UserDao {
-
-
     private static final String CREATE_USER_TABLE = """
                                     CREATE TABLE IF NOT EXISTS users(
                                     USER_ID SERIAL PRIMARY KEY,
@@ -27,9 +23,8 @@ public class UserDaoJDBCImpl implements UserDao {
     private static final String REMOVE_USER_BY_ID = """
             DELETE FROM users where user_id=?
             """;
-
     private static final String CLEAN_USERS_TABLE = """
-            DELETE FROM users
+            TRUNCATE users
             """;
     private static final String GET_ALL_USERS = """
             SELECT * FROM users
@@ -39,11 +34,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
-
     public void createUsersTable() {
         try (Connection connection = Util.getConnection()) {
             Statement statement = Util.getStatement(connection);
             statement.execute(CREATE_USER_TABLE);
+            System.out.println("Таблица создана");
         } catch (SQLException e) {
             System.out.println("Не удалось создать таблицу" + e.getMessage());
         }
@@ -53,6 +48,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getConnection()) {
             Statement statement = Util.getStatement(connection);
             statement.execute(DROP_USER_TABLE);
+            System.out.println("Таблица удалена");
         } catch (SQLException e) {
             System.out.println("Не удалось удалить таблицу");
         }
@@ -75,6 +71,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getConnection()) {
             PreparedStatement prest = connection.prepareStatement(REMOVE_USER_BY_ID);
             prest.setLong(1, id);
+            System.out.println("Пользователь удален из таблицы");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -82,7 +79,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
-        try (Connection connection = Util.getConnection()){
+        try (Connection connection = Util.getConnection()) {
             Statement statement = Util.getStatement(connection);
             ResultSet resultSet = statement.executeQuery(GET_ALL_USERS);
             while (resultSet.next()) {
@@ -92,12 +89,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setLastName(resultSet.getString("lastname"));
                 user.setAge(resultSet.getByte("age"));
                 userList.add(user);
-
+                System.out.println(userList);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(userList.toString());
+        System.out.println(userList);
         return userList;
     }
 
